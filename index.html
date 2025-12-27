@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Гадание на Таро: Любит ли он меня?</title>
+  <link href="https://fonts.googleapis.com/css2?family=Great+Vibes&family=Roboto&display=swap" rel="stylesheet">
+  <style>
+    body { margin:0; font-family:'Roboto',sans-serif; background:#1a1a2e; color:#f0f0f0; display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:100vh; text-align:center; padding:20px;}
+    h1 { font-family:'Great Vibes',cursive; font-size:3em; margin-bottom:20px; color:#e94560;}
+    #card-container { perspective:1000px; margin-bottom:20px;}
+    .card { width:220px; height:350px; cursor:pointer; transition:transform 0.6s; transform-style:preserve-3d; position:relative; margin:0 auto;}
+    .card.flipped { transform:rotateY(180deg);}
+    .card img { width:100%; height:100%; border-radius:10px; backface-visibility:hidden; position:absolute; top:0; left:0;}
+    .card .back { transform:rotateY(180deg); background:#0f3460; display:flex; align-items:center; justify-content:center; font-size:2em; color:#f0f0f0;}
+    #card-text { margin-bottom:20px;}
+    #card-text h2 { margin:0; font-size:1.8em; color:#ffcc00;}
+    #card-text p { margin:5px 0 0 0; font-size:1em; color:#fff; line-height:1.4em;}
+    button { padding:12px 25px; font-size:1em; border:none; border-radius:5px; cursor:pointer; background:#e94560; color:#fff; transition: transform 0.2s, background-color 0.2s;}
+    button:hover { transform:scale(1.05); background:#ff2e63;}
+  </style>
+</head>
+<body>
+
+<h1>Гадание на Таро</h1>
+<p>Сконцентрируйся на вопросе: «Любит ли он меня?» и нажми кнопку, чтобы узнать ответ.</p>
+
+<div id="card-container">
+  <div class="card" id="card">
+    <div class="front back">?</div>
+    <img class="back" src="" alt="Карта">
+  </div>
+</div>
+
+<div id="card-text">
+  <h2>Название карты</h2>
+  <p>Описание карты в контексте вопроса “Любит ли он меня?”</p>
+</div>
+
+<button id="draw-btn">Гадать</button>
+
+<script>
+
+const cards = {
+  // Старшие Арканы
+  "Шут": {text:"Он открыт к новым отношениям, готов начать с чистого листа. Его чувства спонтанны и искренни. Совет: не бойся проявлять инициативу.", img:"images/taro-koleso-godastarshii-arkan-00-Shut.png"},
+  "Маг": {text:"Он проявляет инициативу, у него сильное желание действовать в ваших отношениях. Совет: будь открыта к его энергии.", img:"images/taro-koleso-godastarshii-arkan-01-Mag.png"},
+  "Верховная Жрица": {text:"Он пока скрывает свои чувства, наблюдает за ситуацией. Совет: доверься своей интуиции и чувствам.", img:"images/taro-koleso-godastarshii-arkan-02-Verkhovnaya-Jritsa.png"},
+  "Императрица": {text:"Он испытывает к тебе заботу и нежность, хочет развивать отношения. Совет: будь открыта к проявлению чувств.", img:"images/taro-koleso-godastarshii-arkan-03-Imperatrica.png"},
+  "Император": {text:"Он стабилен, ищет уверенность в отношениях. Совет: цени его надёжность и ответственность.", img:"images/taro-koleso-godastarshii-arkan-04-Imperator.png"},
+  "Иерофант": {text:"Он ценит традиции и серьёзность. Его чувства устойчивы, но он может быть осторожен. Совет: покажи свою искренность.", img:"images/taro-koleso-godastarshii-arkan-05-Ierofant.png"},
+  "Влюбленные": {text:"Он испытывает сильную эмоциональную привязанность. Совет: прислушивайся к сердцу при взаимодействии.", img:"images/taro-koleso-godastarshii-arkan-06-Vlyublennye.png"},
+  "Колесница": {text:"Он решительно движется к отношениям. Совет: поддерживай его решимость и энергию.", img:"images/taro-koleso-godastarshii-arkan-07-Kolesnica.png"},
+  "Сила": {text:"Его чувства сильные, страстные, он проявляет заботу и терпение. Совет: цени его стойкость.", img:"images/taro-koleso-godastarshii-arkan-08-Sila.png"},
+  "Отшельник": {text:"Он анализирует свои эмоции, возможно, немного отстранён. Совет: дай ему пространство и понимание.", img:"images/taro-koleso-godastarshii-arkan-09-Otshelnik.png"},
+  "Колесо Фортуны": {text:"Ситуация меняется, его чувства могут быть непредсказуемы. Совет: принимай перемены спокойно.", img:"images/taro-koleso-godastarshii-arkan-10-Koleso-Fortuny.png"},
+  "Справедливость": {text:"Он действует честно и разумно, старается быть справедливым. Совет: доверяй его словам и действиям.", img:"images/taro-koleso-godastarshii-arkan-11-Spravedlivost.png"},
+  "Повешенный": {text:"Он сейчас в паузе и раздумьях. Совет: не дави, дай время и пространство.", img:"images/taro-koleso-godastarshii-arkan-12-Poveshennyj.png"},
+  "Смерть": {text:"Наступают перемены, старое уходит. Совет: принимай изменения и обновление отношений.", img:"images/taro-koleso-godastarshii-arkan-13-Smert.png"},
+  "Умеренность": {text:"Он ищет гармонию и баланс. Совет: будь терпелива и гармонична в общении.", img:"images/taro-koleso-godastarshii-arkan-14-Umerennost.png"},
+  "Дьявол": {text:"Могут быть сильные эмоции и зависимости. Совет: будь внимательна к манипуляциям, но открыта к страсти.", img:"images/taro-koleso-godastarshii-arkan-15-Diavol.png"},
+  "Башня": {text:"Неожиданные события влияют на отношения. Совет: сохраняй спокойствие и гибкость.", img:"images/taro-koleso-godastarshii-arkan-16-Bashnya.png"},
+  "Звезда": {text:"Он испытывает надежду и светлые чувства. Совет: поддерживай оптимизм и веру в отношения.", img:"images/taro-koleso-godastarshii-arkan-17-Zvezda.png"},
+  "Луна": {text:"Чувства могут быть скрытыми или изменчивыми. Совет: доверяй интуиции и наблюдай за ситуацией.", img:"images/taro-koleso-godastarshii-arkan-18-Luna.png"},
+  "Солнце": {text:"Он рад вашим отношениям, испытывает счастье и удовольствие. Совет: делись радостью и позитивом.", img:"images/taro-kolesо-godastarshii-arkan-19-Solnce.png"},
+  "Суд": {text:"Он пересматривает свои чувства и решения. Совет: будь честна и открыта к общению.", img:"images/taro-kolesо-godastarshii-arkan-20-Sud.png"},
+  "Мир": {text:"Чувства полные, отношения могут быть гармоничными и завершёнными. Совет: цени гармонию и радость вместе.", img:"images/taro-kolesо-godastarshii-arkan-21-Mir.png"},
+
+  // Мечи (14 карт)
+  "Туз Мечей": {text:"Он ясно понимает свои чувства и готов к действию. Совет: будь готова к честному общению.", img:"images/taro-kolesо-goda-mechei-Tuz.png"},
+  "Двойка Мечей": {text:"Он в нерешительности. Совет: дай ему время сделать выбор.", img:"images/taro-kolesо-goda-mechei-02.png"},
+  "Тройка Мечей": {text:"Может быть разрыв, боль. Совет: проявляй терпение и мягкость.", img:"images/taro-kolesо-goda-mechei-03.png"},
+  "Четвёрка Мечей": {text:"Пауза, отдых, раздумья. Совет: дай ему пространство.", img:"images/taro-kolesо-goda-mechei-04.png"},
+  "Пятёрка Мечей": {text:"Конфликт или напряжение. Совет: будь внимательна к его эмоциям.", img:"images/taro-kolesо-goda-mechei-05.png"},
+  "Шестёрка Мечей": {text:"Движение к гармонии. Совет: поддерживай лёгкое общение.", img:"images/taro-kolesо-goda-mechei-06.png"},
+  "Семёрка Мечей": {text:"Он осторожен и скрытен. Совет: доверься интуиции.", img:"images/taro-kolesо-goda-mechei-07.png"},
+  "Восьмёрка Мечей": {text:"Ограничения и страхи. Совет: будь терпелива.", img:"images/taro-kolesо-goda-mechei-08.png"},
+  "Девятка Мечей": {text:"Беспокойство и тревога. Совет: поддерживай спокойствие.", img:"images/taro-kolesо-goda-mechei-09.png"},
+  "Десятка Мечей": {text:"Конец цикла. Совет: принимай перемены.", img:"images/taro-kolesо-goda-mechei-10.png"},
+  "Паж Мечей": {text:"Он внимательно наблюдает. Совет: прояви лёгкость и дружелюбие.", img:"images/taro-kolesо-goda-mechei-Princessa.png"},
+  "Рыцарь Мечей": {text:"Энергичность и решительность. Совет: поддерживай баланс.", img:"images/taro-kolesо-goda-mechei-Rycar.png"},
+  "Королева Мечей": {text:"Он анализирует свои чувства. Совет: будь ясна.", img:"images/taro-kolesо-goda-mechei-Koroleva.png"},
+  "Король Мечей": {text:"Рационален и честен. Совет: проявляй уважение.", img:"images/taro-kolesо-goda-mechei-Korol.png"},
+
+  // Кубки (14 карт)
+  "Туз Кубков": {text:"Он испытывает сильные чувства. Совет: откройся навстречу эмоциям.", img:"images/taro-kolesо-goda-kubkov-01.png"},
+  "Двойка Кубков": {text:"Он хочет гармоничных отношений. Совет: цени взаимность.", img:"images/taro-kolesо-goda-kubkov-02.png"},
+  "Тройка Кубков": {text:"Радость и общение. Совет: разделяйте позитив.", img:"images/taro-kolesо-goda-kubkov-03.png"},
+  "Четвёрка Кубков": {text:"Он думает, размышляет. Совет: наблюдай за его реакцией.", img:"images/taro-kolesо-goda-kubkov-04.png"},
+  "Пятёрка Кубков": {text:"Потери и сожаления. Совет: проявляй поддержку.", img:"images/taro-kolesо-goda-kubkov-05.png"},
+  "Шестёрка Кубков": {text:"Ностальгия и теплые чувства. Совет: напоминай о приятном.", img:"images/taro-kolesо-goda-kubkov-06.png"},
+  "Семёрка Кубков": {text:"Он мечтает и фантазирует. Совет: будь реалистична.", img:"images/taro-kolesо-goda-kubkov-07.png"},
+  "Восьмёрка Кубков": {text:"Отстранение и уход. Совет: дай свободу.", img:"images/taro-kolesо-goda-kubkov-08.png"},
+  "Девятка Кубков": {text:"Он счастлив и удовлетворён. Совет: радуйтесь вместе.", img:"images/taro-kolesо-goda-kubkov-09.png"},
+  "Десятка Кубков": {text:"Гармония и счастье в паре. Совет: цени отношения.", img:"images/taro-kolesо-goda-kubkov-10.png"},
+  "Паж Кубков": {text:"Он наблюдает и проявляет интерес. Совет: будь дружелюбна.", img:"images/taro-kolesо-goda-kubkov-11.png"},
+  "Рыцарь Кубков": {text:"Романтика и внимание. Совет: принимай проявления чувств.", img:"images/taro-kolesо-goda-kubkov-12.png"},
+  "Королева Кубков": {text:"Он заботлив и чуток. Совет: цени его внимание.", img:"images/taro-kolesо-goda-kubkov-13.png"},
+  "Король Кубков": {text:"Он стабилен и эмоционально зрел. Совет: доверяй его намерениям.", img:"images/taro-kolesо-goda-kubkov-14.png"},
+
+  // Жезлы (14 карт)
+  "Туз Жезлов": {text:"Он испытывает к тебе сильный приток эмоций. Совет: будь открыта к новым начинаниям.", img:"images/taro-kolesо-godazhezlov-01.png"},
+  "Двойка Жезлов": {text:"Он рассматривает перспективы отношений. Совет: обсуждайте планы.", img:"images/taro-kolesо-godazhezlov-02.png"},
+  "Тройка Жезлов": {text:"Он настроен на сотрудничество. Совет: проявляй инициативу.", img:"images/taro-kolesо-godazhezlov-03.png"},
+  "Четвёрка Жезлов": {text:"Стабильность и радость. Совет: наслаждайтесь временем вместе.", img:"images/taro-kolesо-godazhezlov-04.png"},
+  "Пятёрка Жезлов": {text:"Конфликты и соперничество. Совет: проявляй терпение.", img:"images/taro-kolesо-godazhezlov-05.png"},
+  "Шестёрка Жезлов": {text:"Он стремится к признанию. Совет: поддерживай его успехи.", img:"images/taro-kolesо-godazhezlov-06.png"},
+  "Семёрка Жезлов": {text:"Защита своих чувств. Совет: уважай его позицию.", img:"images/taro-kolesо-godazhezlov-07.png"},
+  "Восьмёрка Жезлов": {text:"Быстрое развитие. Совет: будь готова к переменам.", img:"images/taro-kolesо-godazhezlov-08.png"},
+  "Девятка Жезлов": {text:"Он осторожен и защищает себя. Совет: проявляй терпение.", img:"images/taro-kolesо-godazhezlov-09.png"},
+  "Десятка Жезлов": {text:"Тяжесть ответственности. Совет: поддерживай и помогай.", img:"images/taro-kolesо-godazhezlov-10.png"},
+  "Паж Жезлов": {text:"Он проявляет интерес и любопытство. Совет: будь дружелюбна.", img:"images/taro-kolesо-godazhezlov-11.png"},
+  "Рыцарь Жезлов": {text:"Энергичность и страсть. Совет: поддерживай активность.", img:"images/taro-kolesо-godazhezlov-12.png"},
+  "Королева Жезлов": {text:"Он видит в тебе уверенность и энергию. Совет: поддерживай теплоту.", img:"images/taro-kolesо-godazhezlov-13.png"},
+  "Король Жезлов": {text:"Он уверен и решителен. Совет: доверься его энергии.", img:"images/taro-kolesо-godazhezlov-14.png"},
+
+  // Пентакли (14 карт)
+  "Туз Пентаклей": {text:"Он видит потенциал для серьёзных отношений. Совет: поддерживай стабильность.", img:"images/taro-kolesо-goda-pentaklei-01.png"},
+  "Двойка Пентаклей": {text:"Он балансирует между чувствами и делами. Совет: будь гибка.", img:"images/taro-kolesо-goda-pentaklei-02.png"},
+  "Тройка Пентаклей": {text:"Он готов работать над отношениями. Совет: цени его усилия.", img:"images/taro-kolesо-goda-pentaklei-03.png"},
+  "Четвёрка Пентаклей": {text:"Он осторожен и бережлив. Совет: уважай его границы.", img:"images/taro-kolesо-goda-pentaklei-04.png"},
+  "Пятёрка Пентаклей": {text:"Трудности и испытания. Совет: поддерживай его морально.", img:"images/taro-kolesо-goda-pentaklei-05.png"},
+  "Шестёрка Пентаклей": {text:"Взаимная поддержка и забота. Совет: принимай щедрость.", img:"images/taro-kolesо-goda-pentaklei-06.png"},
+  "Семёрка Пентаклей": {text:"Он оценивает результаты. Совет: проявляй терпение.", img:"images/taro-kolesо-goda-pentaklei-07.png"},
+  "Восьмёрка Пентаклей": {text:"Он вкладывается в отношения. Совет: цените усилия.", img:"images/taro-kolesо-goda-pentaklei-08.png"},
+  "Девятка Пентаклей": {text:"Он удовлетворён и независим. Совет: цени его уверенность.", img:"images/taro-kolesо-goda-pentaklei-09.png"},
+  "Десятка Пентаклей": {text:"Стабильность и долгосрочные планы. Совет: планируйте будущее.", img:"images/taro-kolesо-goda-pentaklei-10.png"},
+  "Паж Пентаклей": {text:"Он наблюдает и учится понимать тебя. Совет: будь открыта.", img:"images/taro-kolesо-goda-pentaklei-11.png"},
+  "Рыцарь Пентаклей": {text:"Он надёжен и заботлив. Совет: цени его стабильность.", img:"images/taro-kolesо-goda-pentaklei-12.png"},
+  "Королева Пентаклей": {text:"Он видит в тебе заботу и уют. Совет: принимай тепло.", img:"images/taro-kolesо-goda-pentaklei-13.png"},
+  "Король Пентаклей": {text:"Он стабилен, уверен и реалистичен. Совет: доверяй его решениям.", img:"images/taro-kolesо-goda-pentaklei-14.png"}
+};
+
+ 
+
+const card = document.getElementById('card');
+const cardImg = card.querySelector('img.back');
+const cardTextTitle = document.querySelector('#card-text h2');
+const cardTextDesc = document.querySelector('#card-text p');
+const drawBtn = document.getElementById('draw-btn');
+
+function drawCard() {
+  const keys = Object.keys(cards);
+  const randomKey = keys[Math.floor(Math.random() * keys.length)];
+  const selectedCard = cards[randomKey];
+
+  cardImg.src = selectedCard.img;
+  cardTextTitle.textContent = randomKey;
+  cardTextDesc.textContent = selectedCard.text;
+
+  card.classList.remove('flipped');
+  setTimeout(() => card.classList.add('flipped'), 100);
+}
+
+drawBtn.addEventListener('click', drawCard);
+</script>
+
+</body>
+</html>
